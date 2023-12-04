@@ -6,7 +6,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="odd-job" />
+        <module name="odd-job-executor-sample-springboot" />
+        <module name="odd-job-executor-sample-frameless" />
+        <module name="odd-job-core" />
+        <module name="odd-job-admin" />
       </profile>
     </annotationProcessing>
   </component>
