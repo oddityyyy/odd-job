@@ -35,10 +35,10 @@ public class OddJobSpringExecutor extends OddJobExecutor implements ApplicationC
     @Override
     public void afterSingletonsInstantiated() {
 
-        // init JobHandler Repository (for method)
+        // init JobHandler Repository (for method) 注册JobHandler
         initJobHandlerMethodRepository(applicationContext);
 
-        // refresh GlueFactory
+        // refresh GlueFactory 将Glue文件转换为JobHandler
         GlueFactory.refreshInstance(1);
 
         // super start

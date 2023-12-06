@@ -45,6 +45,8 @@ public class OddJobConfig {
 
     @Bean
     public OddJobSpringExecutor oddJobExecutor() {
-
+        logger.info(">>>>>>>>>>> odd-job config init.");
+        OddJobSpringExecutor oddJobSpringExecutor = new OddJobSpringExecutor();
+        oddJobSpringExecutor.setAdminAddresses(adminAddresses);
     }
 }

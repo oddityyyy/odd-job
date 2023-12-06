@@ -4,15 +4,14 @@ import com.odd.job.core.biz.model.LogResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.LineNumberReader;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * store trigger log in each log-file
+ *
+ * log文件操作类
  *
  * @author oddity
  * @create 2023-12-05 15:57
@@ -157,5 +156,63 @@ public class OddJobFileAppender {
         StringBuffer logContentBuffer = new StringBuffer();
         int toLineNum = 0;
         LineNumberReader reader = null;
+
+        try {
+            //reader = new LineNumberReader(new FileReader(logFile));
+            reader = new LineNumberReader(new InputStreamReader(new FileInputStream(logFile), "utf-8"));
+            String line = null;
+
+            while ((line = reader.readLine())!=null) {
+                toLineNum = reader.getLineNumber();		// [from, to], start as 1
+                if (toLineNum >= fromLineNum) {
+                    logContentBuffer.append(line).append("\n");
+                }
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+
+        // result
+        LogResult logResult = new LogResult(fromLineNum, toLineNum, logContentBuffer.toString(), false);
+        return logResult;
+    }
+
+    /**
+     * read log data
+     * @param logFile
+     * @return log line content
+     */
+    public static String readLines(File logFile){
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(logFile), "utf-8"));
+            if (reader != null) {
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
+                return sb.toString();
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+        return null;
     }
 }

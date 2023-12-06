@@ -1,13 +1,18 @@
 package com.odd.job.core.executor;
 
+import com.odd.job.core.biz.AdminBiz;
+import com.odd.job.core.biz.client.AdminBizClient;
 import com.odd.job.core.handler.IJobHandler;
 import com.odd.job.core.handler.annotation.OddJob;
 import com.odd.job.core.handler.impl.MethodJobHandler;
 import com.odd.job.core.log.OddJobFileAppender;
+import com.odd.job.core.thread.JobLogFileCleanThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -66,7 +71,42 @@ public class OddJobExecutor {
 
         // init logPath
         OddJobFileAppender.initLogPath(logPath);
+
+        // init invoker, admin-client
+        initAdminBizList(adminAddresses, accessToken);
+
+        // init JobLogFileCleanThread
+        JobLogFileCleanThread.getInstance().start(logRetentionDays);
+
+        // init TriggerCallbackThread
+
+
     }
+
+    // ---------------------- admin-client (rpc invoker) ----------------------
+    private static List<AdminBiz> adminBizList;
+    private void initAdminBizList(String adminAddresses, String accessToken) throws Exception {
+        if (adminAddresses != null && adminAddresses.trim().length() > 0){
+            for (String address : adminAddresses.trim().split(",")){
+                if (address != null && address.trim().length() > 0) {
+
+                    AdminBiz adminBiz = new AdminBizClient(address.trim(), accessToken);
+
+                    if (adminBizList == null) {
+                        adminBizList = new ArrayList<AdminBiz>();
+                    }
+                    adminBizList.add(adminBiz);
+                }
+            }
+        }
+    }
+
+    public static List<AdminBiz> getAdminBizList() {
+        return adminBizList;
+    }
+
+
+
 
     // ---------------------- job handler repository ----------------------
     private static ConcurrentMap<String, IJobHandler> jobHandlerRepository = new ConcurrentHashMap<String, IJobHandler>();
