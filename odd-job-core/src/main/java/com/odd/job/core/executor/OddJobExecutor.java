@@ -7,6 +7,7 @@ import com.odd.job.core.handler.annotation.OddJob;
 import com.odd.job.core.handler.impl.MethodJobHandler;
 import com.odd.job.core.log.OddJobFileAppender;
 import com.odd.job.core.thread.JobLogFileCleanThread;
+import com.odd.job.core.thread.TriggerCallbackThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +80,7 @@ public class OddJobExecutor {
         JobLogFileCleanThread.getInstance().start(logRetentionDays);
 
         // init TriggerCallbackThread
-
+        TriggerCallbackThread
 
     }
 
