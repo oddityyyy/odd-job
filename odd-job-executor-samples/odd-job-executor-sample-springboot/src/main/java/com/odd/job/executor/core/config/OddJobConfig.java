@@ -43,10 +43,40 @@ public class OddJobConfig {
     @Value("${odd.job.executor.logretentiondays}")
     private int logRetentionDays;
 
+    /**
+     * 同一个执行器集群的appname必须一致，执行器回调地址（odd.job.admin.addresses）需要保持一致
+     * @return
+     */
     @Bean
     public OddJobSpringExecutor oddJobExecutor() {
         logger.info(">>>>>>>>>>> odd-job config init.");
         OddJobSpringExecutor oddJobSpringExecutor = new OddJobSpringExecutor();
         oddJobSpringExecutor.setAdminAddresses(adminAddresses);
+        oddJobSpringExecutor.setAppname(appname);
+        oddJobSpringExecutor.setAddress(address);
+        oddJobSpringExecutor.setIp(ip);
+        oddJobSpringExecutor.setPort(port);
+        oddJobSpringExecutor.setAccessToken(accessToken);
+        oddJobSpringExecutor.setLogPath(logPath);
+        oddJobSpringExecutor.setLogRetentionDays(logRetentionDays);
+
+        return oddJobSpringExecutor;
     }
+
+    /**
+     * 针对多网卡、容器内部署等情况，可借助 "spring-cloud-commons" 提供的 "InetUtils" 组件灵活定制注册IP；
+     *
+     *      1、引入依赖：
+     *          <dependency>
+     *             <groupId>org.springframework.cloud</groupId>
+     *             <artifactId>spring-cloud-commons</artifactId>
+     *             <version>${version}</version>
+     *         </dependency>
+     *
+     *      2、配置文件，或者容器启动变量
+     *          spring.cloud.inetutils.preferred-networks: 'xxx.xxx.xxx.'
+     *
+     *      3、获取IP
+     *          String ip_ = inetUtils.findFirstNonLoopbackHostInfo().getIpAddress();
+     */
 }

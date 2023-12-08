@@ -5,6 +5,7 @@ import com.odd.job.core.biz.model.HandleCallbackParam;
 import com.odd.job.core.biz.model.ReturnT;
 import com.odd.job.core.context.OddJobContext;
 import com.odd.job.core.context.OddJobHelper;
+import com.odd.job.core.enums.RegistryConfig;
 import com.odd.job.core.executor.OddJobExecutor;
 import com.odd.job.core.log.OddJobFileAppender;
 import com.odd.job.core.util.FileUtil;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author oddity
@@ -46,6 +48,8 @@ public class TriggerCallbackThread {
     private Thread triggerCallbackThread;
     private Thread triggerRetryCallbackThread;
     private volatile boolean toStop = false;
+
+    // 开启两个线程
     public void start() {
 
         // valid
@@ -61,22 +65,94 @@ public class TriggerCallbackThread {
 
                 // normal callback
                 while(!toStop){
-                    HandleCallbackParam callback = getInstance().callBackQueue.take();
-                    if (callback != null){
+                    try {
+                        HandleCallbackParam callback = getInstance().callBackQueue.take();
+                        if (callback != null){
 
-                        // callback list param
-                        List<HandleCallbackParam> callbackParamList = new ArrayList<HandleCallbackParam>();
-                        int drainToNum = getInstance().callBackQueue.drainTo(callbackParamList);
-                        callbackParamList.add(callback);
+                            // callback list param
+                            List<HandleCallbackParam> callbackParamList = new ArrayList<HandleCallbackParam>();
+                            int drainToNum = getInstance().callBackQueue.drainTo(callbackParamList);
+                            callbackParamList.add(callback);
 
-                        // callback, will retry if error
-                        if (callbackParamList != null && callbackParamList.size() > 0){
-                            doCallback(callbackParamList);
+                            // callback, will retry if error
+                            if (callbackParamList != null && callbackParamList.size() > 0){
+                                doCallback(callbackParamList);
+                            }
+                        }
+                    } catch (Exception e) {
+                        if (!toStop){
+                            logger.error(e.getMessage(), e);
                         }
                     }
                 }
+
+                // last callback stop的时候回调残余的
+                try {
+                    List<HandleCallbackParam> callbackParamList = new ArrayList<HandleCallbackParam>();
+                    int drainToNum = getInstance().callBackQueue.drainTo(callbackParamList);
+                    if (callbackParamList != null && callbackParamList.size() > 0){
+                        doCallback(callbackParamList);
+                    }
+                } catch (Exception e) {
+                    if (!toStop){
+                        logger.error(e.getMessage(), e);
+                    }
+                }
+                logger.info(">>>>>>>>>>> odd-job, executor callback thread destroy.");
             }
-        })
+        });
+        triggerCallbackThread.setDaemon(true);
+        triggerCallbackThread.setName("odd-job, executor TriggerCallbackThread");
+        triggerCallbackThread.start();
+
+        // retry
+        triggerRetryCallbackThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!toStop){
+                    try {
+                        retryFailCallbackFile();
+                    } catch (Exception e) {
+                        if (!toStop){
+                            logger.error(e.getMessage(), e);
+                        }
+                    }
+                    try {
+                        TimeUnit.SECONDS.sleep(RegistryConfig.BEAT_TIMEOUT); //30s
+                    } catch (InterruptedException e) {
+                        if (!toStop){
+                            logger.error(e.getMessage(), e);
+                        }
+                    }
+                }
+                logger.info(">>>>>>>>>>> odd-job, executor retry callback thread destroy.");
+            }
+        });
+        triggerRetryCallbackThread.setDaemon(true);
+        triggerRetryCallbackThread.start();
+    }
+
+    public void toStop(){
+        toStop = true;
+        // stop callback, interrupt and wait
+        if (triggerCallbackThread != null){
+            triggerCallbackThread.interrupt();
+            try {
+                triggerCallbackThread.join();
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+
+        // stop retry, interrupt and wait
+        if (triggerRetryCallbackThread != null){
+            triggerRetryCallbackThread.interrupt();
+            try {
+                triggerRetryCallbackThread.join();
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
     }
 
     //TODO 此处若调度中心集群，这样的回调方式会不会有问题
@@ -155,5 +231,38 @@ public class TriggerCallbackThread {
             }
         }
         FileUtil.writeFileContent(callbackLogFile, callbackParamList_bytes);
+    }
+
+    // 对上面方法中的错误callback文件中的callbackParamList进行重复尝试回调
+    private void retryFailCallbackFile(){
+
+        // valid
+        File callbackLogPath = new File(failCallbackFilePath);
+        if (!callbackLogPath.exists()){
+            return;
+        }
+        if (callbackLogPath.isFile()){
+            callbackLogPath.delete();
+        }
+        if (!(callbackLogPath.isDirectory() && callbackLogPath.list() != null && callbackLogPath.list().length > 0)){
+            return;
+        }
+
+        // load and clear file, retry
+        for (File callbackLogFile : callbackLogPath.listFiles()){
+            byte[] callbackParamList_bytes = FileUtil.readFileContent(callbackLogFile);
+
+            // avoid empty file
+            if (callbackParamList_bytes == null || callbackParamList_bytes.length < 1){
+                callbackLogFile.delete();
+                continue;
+            }
+
+            List<HandleCallbackParam> callbackParamList = (List<HandleCallbackParam>) JdkSerializeTool.deserialize(callbackParamList_bytes, List.class);
+
+            callbackLogFile.delete();
+            // 再尝试回调，若又失败，继续写错误回调日志，如此循环往复，直到toStop
+            doCallback(callbackParamList);
+        }
     }
 }

@@ -6,7 +6,6 @@ import com.odd.job.core.biz.model.RegistryParam;
 import com.odd.job.core.biz.model.ReturnT;
 import com.odd.job.core.util.OddJobRemotingUtil;
 
-import java.awt.*;
 import java.util.List;
 
 /**

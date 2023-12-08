@@ -6,8 +6,11 @@ import com.odd.job.core.handler.IJobHandler;
 import com.odd.job.core.handler.annotation.OddJob;
 import com.odd.job.core.handler.impl.MethodJobHandler;
 import com.odd.job.core.log.OddJobFileAppender;
+import com.odd.job.core.server.EmbedServer;
 import com.odd.job.core.thread.JobLogFileCleanThread;
 import com.odd.job.core.thread.TriggerCallbackThread;
+import com.odd.job.core.util.IpUtil;
+import com.odd.job.core.util.NetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,8 +83,10 @@ public class OddJobExecutor {
         JobLogFileCleanThread.getInstance().start(logRetentionDays);
 
         // init TriggerCallbackThread
-        TriggerCallbackThread
+        TriggerCallbackThread.getInstance().start();
 
+        // init executor-server
+        initEmbedServer(address, ip, port, appname, accessToken);
     }
 
     // ---------------------- admin-client (rpc invoker) ----------------------
@@ -106,6 +111,30 @@ public class OddJobExecutor {
         return adminBizList;
     }
 
+    // ---------------------- executor-server (rpc provider) ----------------------
+    private EmbedServer embedServer = null;
+
+    private void initEmbedServer(String address, String ip, int port, String appname, String accessToken) throws Exception {
+
+        // fill ip port
+        port = port > 0 ? port : NetUtil.findAvailablePort(9999);
+        ip = (ip != null && ip.trim().length() > 0) ? ip : IpUtil.getIp();
+
+        // generate address
+        if (address == null || address.trim().length() == 0){
+            String ip_port_address = IpUtil.getIpPort(ip, port);// registry-address：default use address to registry , otherwise use ip:port if address is null
+            address = "http://{ip_port}/".replace("{ip_port}", ip_port_address);
+        }
+
+        // accessToken
+        if (accessToken == null || accessToken.trim().length() == 0){
+            logger.warn(">>>>>>>>>>> odd-job accessToken is empty. To ensure system security, please set the accessToken.");
+        }
+
+        // start
+        embedServer = new EmbedServer();
+        embedServer.start(address, port, appname, accessToken);
+    }
 
 
 

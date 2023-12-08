@@ -31,6 +31,7 @@ public class OddJobSpringExecutor extends OddJobExecutor implements ApplicationC
 
     private static final Logger logger = LoggerFactory.getLogger(OddJobSpringExecutor.class);
 
+    // SmartInitializingSingleton接口的方法
     // 在单例实例化后调用的方法，进行一些初始化操作
     @Override
     public void afterSingletonsInstantiated() {
