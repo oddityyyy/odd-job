@@ -8,6 +8,7 @@ import com.odd.job.core.handler.impl.MethodJobHandler;
 import com.odd.job.core.log.OddJobFileAppender;
 import com.odd.job.core.server.EmbedServer;
 import com.odd.job.core.thread.JobLogFileCleanThread;
+import com.odd.job.core.thread.JobThread;
 import com.odd.job.core.thread.TriggerCallbackThread;
 import com.odd.job.core.util.IpUtil;
 import com.odd.job.core.util.NetUtil;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -89,6 +91,35 @@ public class OddJobExecutor {
         initEmbedServer(address, ip, port, appname, accessToken);
     }
 
+    // 停止此执行器
+    public void destroy(){
+        // destroy executor-server
+        stopEmbedServer();
+
+        // destroy jobThreadRepository
+        if (jobThreadRepository.size() > 0){ //此执行器还有任务未执行完，执行器中各个jobId多线程异步执行
+            for (Map.Entry<Integer, JobThread> item : jobThreadRepository.entrySet()){
+                JobThread oldJobThread = removeJobThread(item.getKey(), "web container destroy and kill the job.");
+                // wait for job thread push result to callback queue
+                if (oldJobThread != null){
+                    try {
+                        oldJobThread.join(); //让老线程执行完并关闭
+                    } catch (InterruptedException e) {
+                        logger.error(">>>>>>>>>>> odd-job, JobThread destroy(join) error, jobId:{}", item.getKey(), e);
+                    }
+                }
+            }
+            jobThreadRepository.clear();
+        }
+        jobHandlerRepository.clear(); //清理扫描注册过的jobHandler
+
+        // destroy JobLogFileCleanThread
+        JobLogFileCleanThread.getInstance().toStop();
+
+        // destroy TriggerCallbackThread
+        TriggerCallbackThread.getInstance().toStop();
+    }
+
     // ---------------------- admin-client (rpc invoker) ----------------------
     private static List<AdminBiz> adminBizList;
     private void initAdminBizList(String adminAddresses, String accessToken) throws Exception {
@@ -136,6 +167,17 @@ public class OddJobExecutor {
         embedServer.start(address, port, appname, accessToken);
     }
 
+    private void stopEmbedServer(){
+        // stop provider factory
+        if (embedServer != null){
+            try {
+                embedServer.stop();
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
 
 
     // ---------------------- job handler repository ----------------------
@@ -144,6 +186,7 @@ public class OddJobExecutor {
     public static IJobHandler loadJobHandler(String name) {
         return jobHandlerRepository.get(name);
     }
+
     public static IJobHandler registJobHandler(String name, IJobHandler jobHandler){
         logger.info(">>>>>>>>>>> odd-job register jobhandler success, name:{}, jobHandler:{}", name, jobHandler);
         return jobHandlerRepository.put(name, jobHandler);
@@ -194,4 +237,36 @@ public class OddJobExecutor {
     }
 
 
+    // ---------------------- job thread repository ----------------------
+    private static ConcurrentMap<Integer, JobThread> jobThreadRepository = new ConcurrentHashMap<Integer, JobThread>();
+
+    //一个jobId对应一个唯一的IJobHandler对应一个唯一的线程
+    public static JobThread registJobThread(int jobId, IJobHandler handler, String removeOldReason){
+        JobThread newJobThread = new JobThread(jobId, handler);
+        newJobThread.start();
+        logger.info(">>>>>>>>>>> odd-job regist JobThread success, jobId:{}, handler:{}", new Object[]{jobId, handler});
+
+        JobThread oldJobThread = jobThreadRepository.put(jobId, newJobThread);// putIfAbsent | oh my god, map's put method return the old value!!!
+        if (oldJobThread != null){
+            oldJobThread.toStop(removeOldReason);
+            oldJobThread.interrupt();
+        }
+
+        return newJobThread;
+    }
+
+    public static JobThread removeJobThread(int jobId, String removeOldReason){
+        JobThread oldJobThread = jobThreadRepository.remove(jobId);
+        if (oldJobThread != null){
+            oldJobThread.toStop(removeOldReason);
+            oldJobThread.interrupt();
+
+            return oldJobThread;
+        }
+        return null;
+    }
+
+    public static JobThread loadJobThread(int jobId){
+        return jobThreadRepository.get(jobId);
+    }
 }

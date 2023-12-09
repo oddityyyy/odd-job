@@ -9,7 +9,7 @@ import com.odd.job.core.util.OddJobRemotingUtil;
 import java.util.List;
 
 /**
- * Admin Client For JobExecutor
+ * Admin Client For JobExecutor (invoker)
  *
  * @author oddity
  * @create 2023-12-06 16:30

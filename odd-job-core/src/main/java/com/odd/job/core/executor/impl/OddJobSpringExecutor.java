@@ -51,8 +51,8 @@ public class OddJobSpringExecutor extends OddJobExecutor implements ApplicationC
     }
 
     @Override
-    public void destroy() throws Exception {
-
+    public void destroy() {
+        super.destroy();
     }
 
     //用于初始化作业处理器方法仓库，扫描 Spring 容器中带有 @OddJob 注解的方法，并将其注册为作业处理器
