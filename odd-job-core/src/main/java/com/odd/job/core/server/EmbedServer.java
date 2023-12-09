@@ -2,7 +2,9 @@ package com.odd.job.core.server;
 
 import com.odd.job.core.biz.ExecutorBiz;
 import com.odd.job.core.biz.impl.ExecutorBizImpl;
+import com.odd.job.core.biz.model.IdleBeatParam;
 import com.odd.job.core.biz.model.ReturnT;
+import com.odd.job.core.util.GsonTool;
 import com.odd.job.core.util.OddJobRemotingUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -171,6 +173,11 @@ public class EmbedServer {
             // service mapping
 
             switch (uri){
+                case "/beat":
+                    return executorBiz.beat();
+                case "/idleBeat":
+                    IdleBeatParam idleBeatParam = GsonTool.fromJson(requestData, IdleBeatParam.class);
+                    return executorBiz.idleBeat(idleBeatParam);
 
             }
         }

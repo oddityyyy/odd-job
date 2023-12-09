@@ -8,6 +8,7 @@ import com.odd.job.core.handler.impl.MethodJobHandler;
 import com.odd.job.core.log.OddJobFileAppender;
 import com.odd.job.core.server.EmbedServer;
 import com.odd.job.core.thread.JobLogFileCleanThread;
+import com.odd.job.core.thread.JobThread;
 import com.odd.job.core.thread.TriggerCallbackThread;
 import com.odd.job.core.util.IpUtil;
 import com.odd.job.core.util.NetUtil;
@@ -194,4 +195,34 @@ public class OddJobExecutor {
     }
 
 
+    // ---------------------- job thread repository ----------------------
+    private static ConcurrentMap<Integer, JobThread> jobThreadRepository = new ConcurrentHashMap<Integer, JobThread>();
+    public static JobThread registJobThread(int jobId, IJobHandler handler, String removeOldReason){
+        JobThread newJobThread = new JobThread(jobId, handler);
+        newJobThread.start();
+        logger.info(">>>>>>>>>>> odd-job regist JobThread success, jobId:{}, handler:{}", new Object[]{jobId, handler});
+
+        JobThread oldJobThread = jobThreadRepository.put(jobId, newJobThread);// putIfAbsent | oh my god, map's put method return the old value!!!
+        if (oldJobThread != null){
+            oldJobThread.toStop(removeOldReason);
+            oldJobThread.interrupt();
+        }
+
+        return newJobThread;
+    }
+
+    public static JobThread removeJobThread(int jobId, String removeOldReason){
+        JobThread oldJobThread = jobThreadRepository.remove(jobId);
+        if (oldJobThread != null){
+            oldJobThread.toStop(removeOldReason);
+            oldJobThread.interrupt();
+
+            return oldJobThread;
+        }
+        return null;
+    }
+
+    public static JobThread loadJobThread(int jobId){
+        return jobThreadRepository.get(jobId);
+    }
 }
