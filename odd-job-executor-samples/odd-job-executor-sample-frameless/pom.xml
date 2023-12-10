@@ -32,7 +32,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- xxl-job-core -->
+        <!-- odd-job-core -->
         <dependency>
             <groupId>com.oddityyyy</groupId>
             <artifactId>odd-job-core</artifactId>
