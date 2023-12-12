@@ -15,6 +15,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 /**
+ * 这段代码是通过 Java 原生的 HttpURLConnection 来发送 HTTP POST 请求的，
+ * 处理了连接、设置请求头、写入请求体、读取响应数据等步骤。它使用了 Java 原生的方法来进行网络请求和数据处理。
+ *
  * @author oddity
  * @create 2023-12-06 16:38
  */

@@ -4,6 +4,7 @@ import com.odd.job.admin.controller.annotation.PermissionLimit;
 import com.odd.job.admin.core.model.OddJobUser;
 import com.odd.job.admin.core.util.I18nUtil;
 import com.odd.job.admin.service.LoginService;
+import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author oddity
  * @create 2023-12-11 22:32
  */
+@Component
 public class PermissionInterceptor implements AsyncHandlerInterceptor {
 
     @Resource
