@@ -3,7 +3,7 @@ package com.odd.job.core.biz.impl;
 import com.odd.job.core.biz.ExecutorBiz;
 import com.odd.job.core.biz.model.*;
 import com.odd.job.core.enums.ExecutorBlockStrategyEnum;
-import com.odd.job.core.executor.OddJobExecutor;
+import com.odd.job.core.log.executor.OddJobExecutor;
 import com.odd.job.core.glue.GlueFactory;
 import com.odd.job.core.glue.GlueTypeEnum;
 import com.odd.job.core.handler.IJobHandler;

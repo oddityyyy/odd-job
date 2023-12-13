@@ -6,7 +6,7 @@ import com.odd.job.core.biz.model.ReturnT;
 import com.odd.job.core.context.OddJobContext;
 import com.odd.job.core.context.OddJobHelper;
 import com.odd.job.core.enums.RegistryConfig;
-import com.odd.job.core.executor.OddJobExecutor;
+import com.odd.job.core.log.executor.OddJobExecutor;
 import com.odd.job.core.log.OddJobFileAppender;
 import com.odd.job.core.util.FileUtil;
 import com.odd.job.core.util.JdkSerializeTool;

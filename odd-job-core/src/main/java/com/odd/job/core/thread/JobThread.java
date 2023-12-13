@@ -5,7 +5,7 @@ import com.odd.job.core.biz.model.ReturnT;
 import com.odd.job.core.biz.model.TriggerParam;
 import com.odd.job.core.context.OddJobContext;
 import com.odd.job.core.context.OddJobHelper;
-import com.odd.job.core.executor.OddJobExecutor;
+import com.odd.job.core.log.executor.OddJobExecutor;
 import com.odd.job.core.handler.IJobHandler;
 import com.odd.job.core.log.OddJobFileAppender;
 import org.slf4j.Logger;

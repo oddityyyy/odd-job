@@ -1,4 +1,4 @@
-package com.odd.job.core.executor;
+package com.odd.job.core.log.executor;
 
 import com.odd.job.core.biz.AdminBiz;
 import com.odd.job.core.biz.client.AdminBizClient;
