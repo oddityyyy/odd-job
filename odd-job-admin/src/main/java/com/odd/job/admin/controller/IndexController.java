@@ -1,13 +1,9 @@
 package com.odd.job.admin.controller;
 
 import com.odd.job.admin.controller.annotation.PermissionLimit;
-import com.odd.job.admin.core.route.ExecutorRouteStrategyEnum;
-import com.odd.job.admin.core.util.I18nUtil;
 import com.odd.job.admin.service.LoginService;
 import com.odd.job.admin.service.OddJobService;
 import com.odd.job.core.biz.model.ReturnT;
-import com.odd.job.core.enums.ExecutorBlockStrategyEnum;
-import com.odd.job.core.glue.GlueTypeEnum;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**

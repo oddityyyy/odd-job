@@ -171,7 +171,7 @@ public class ExecutorBizImpl implements ExecutorBiz {
     }
 
     /**
-     * 记日志并返回日志结果
+     * 读日志并返回日志结果
      * @param logParam
      * @return
      */

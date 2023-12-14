@@ -38,7 +38,7 @@ public class JobCompleteHelper {
 
     public void start(){
 
-        // for callback
+        // for callback 处理回调结果的线程池
         callbackThreadPool = new ThreadPoolExecutor(
                 2,
                 20,
@@ -140,7 +140,7 @@ public class JobCompleteHelper {
 
     public ReturnT<String> callback(List<HandleCallbackParam> callbackParamList) {
 
-        callbackThreadPool.execute(new Runnable() {
+        callbackThreadPool.execute(new Runnable() { //一个任务一个jobThread相应的一个任务一个callbackThread，下面队列中堆积着待执行的任务队列/待回调的任务队列按时间排序
             @Override
             public void run() {
                 for (HandleCallbackParam handleCallbackParam : callbackParamList) {
@@ -160,9 +160,16 @@ public class JobCompleteHelper {
         if (log == null) {
             return new ReturnT<String>(ReturnT.FAIL_CODE, "log item not found.");
         }
-        if (log.getHandleCode() > 0) {
+        if (log.getHandleCode() > 0) { // 已经处理过
             return new ReturnT<String>(ReturnT.FAIL_CODE, "log repeate callback.");     // avoid repeat callback, trigger child job etc
         }
+
+        //TODO 此处加入时间校验
+        /**
+        if (log.getTriggerTime().getTime() != handleCallbackParam.getLogDateTim()) {
+            return new ReturnT<String>(ReturnT.FAIL_CODE, "log item is incompatible with current Admin.");
+        }
+         */
 
         // handle msg
         StringBuffer handleMsg = new StringBuffer();

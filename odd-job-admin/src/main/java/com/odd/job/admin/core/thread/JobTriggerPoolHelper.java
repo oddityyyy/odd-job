@@ -95,15 +95,15 @@ public class JobTriggerPoolHelper {
                     logger.error(e.getMessage(), e);
                 } finally {
 
-                    // check timeout-count-map
+                    // check timeout-count-map 如果 minTim 不等于 minTim_now，表示分钟发生了变化，因此更新 minTim 为 minTim_now，并且清空 jobTimeoutCountMap
                     long minTim_now = System.currentTimeMillis()/60000;
                     if (minTim != minTim_now) {
                         minTim = minTim_now;
-                        jobTimeoutCountMap.clear();
+                        jobTimeoutCountMap.clear(); // 每分钟清理一次
                     }
 
                     // incr timeout-count-map
-                    long cost = System.currentTimeMillis()-start;
+                    long cost = System.currentTimeMillis() - start;
                     if (cost > 500) {       // ob-timeout threshold 500ms
                         AtomicInteger timeoutCount = jobTimeoutCountMap.putIfAbsent(jobId, new AtomicInteger(1));
                         if (timeoutCount != null) {

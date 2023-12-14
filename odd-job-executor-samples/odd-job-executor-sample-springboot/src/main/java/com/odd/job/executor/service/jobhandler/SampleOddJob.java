@@ -74,6 +74,7 @@ public class SampleOddJob {
     }
 
     //TODO 分片参数是从调度中心TriggerParam传过来的，怎么传过来的
+    //答：是从调度中心发来的TriggerParam中传过来的，调度中心在发起调度前需要先根据路由规则确定要调度的机器地址，不论是分片广播（在TriggerParam中设置了index和total）还是其他策略(默认index = 0, length = 1), 在调度请求发出来之前，分片参数都会在TriggerParam中设置好
     /**
      * 2、分片广播任务
      */

@@ -158,6 +158,13 @@ public class TriggerCallbackThread {
     //TODO 此处若调度中心集群，这样的回调方式会不会有问题
     // （细看admin的代码，有可能是adminBiz.callback(callbackParamList)远程发送请求的时候，amdin端做了校验，
     // 不是本调度中心调度的任务不予返回成功结果）
+    //答：admin确实做了校验，它首先会根据
+    //// valid log item
+    // OddJobLog log = OddJobAdminConfig.getAdminConfig().getOddJobLogDao().load(handleCallbackParam.getLogId());
+    // 检查log是否在本地数据库中存在，而数据库odd_job又是持久化在调度中心机器上的，不是本调度中心调度的任务不会在本调度中心的数据库中存放job_log
+    // 最终会返回失败结果，会报"log item not found."错误
+    //TODO 但是如果是不同调度中心在同一时刻同时调度同一个jobId的任务，仍然会有并发执行会造成回调数据返回错乱的风险，但是实际使用中这种使用场景很少见，也说的过去
+    //TODO 反正我觉得这块的实现还是有瑕疵，任务数量少的话容易撞车，admin端还可以加入更为严格的校验逻辑（验证代表admin身份的参数<Trigger_time/LogDateTime >）
     /**
      * do callback, will retry if error
      *
