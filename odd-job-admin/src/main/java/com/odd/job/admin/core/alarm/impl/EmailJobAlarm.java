@@ -2,6 +2,7 @@ package com.odd.job.admin.core.alarm.impl;
 
 import com.odd.job.admin.core.alarm.JobAlarm;
 import com.odd.job.admin.core.conf.OddJobAdminConfig;
+import com.odd.job.admin.core.model.OddJobGroup;
 import com.odd.job.admin.core.model.OddJobInfo;
 import com.odd.job.admin.core.model.OddJobLog;
 import com.odd.job.admin.core.util.I18nUtil;
@@ -54,9 +55,9 @@ public class EmailJobAlarm implements JobAlarm {
             }
 
             // email info
-            XxlJobGroup group = OddJobAdminConfig.getAdminConfig().getOddJobGroupDao().load(Integer.valueOf(info.getJobGroup()));
-            String personal = I18nUtil.getString("admin_name_full");
-            String title = I18nUtil.getString("jobconf_monitor");
+            OddJobGroup group = OddJobAdminConfig.getAdminConfig().getOddJobGroupDao().load(Integer.valueOf(info.getJobGroup()));
+            String personal = I18nUtil.getString("admin_name_full"); //Distributed Task Scheduling Platform ODD-JOB
+            String title = I18nUtil.getString("jobconf_monitor"); //Task Scheduling Center monitor alarm
             String content = MessageFormat.format(loadEmailJobAlarmTemplate(),
                     group!=null?group.getTitle():"null",
                     info.getId(),
@@ -68,24 +69,56 @@ public class EmailJobAlarm implements JobAlarm {
 
                 // make mail
                 try {
-                    MimeMessage mimeMessage = XxlJobAdminConfig.getAdminConfig().getMailSender().createMimeMessage();
+                    MimeMessage mimeMessage = OddJobAdminConfig.getAdminConfig().getMailSender().createMimeMessage();
 
                     MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-                    helper.setFrom(XxlJobAdminConfig.getAdminConfig().getEmailFrom(), personal);
+                    helper.setFrom(OddJobAdminConfig.getAdminConfig().getEmailFrom(), personal);
                     helper.setTo(email);
                     helper.setSubject(title);
                     helper.setText(content, true);
 
-                    XxlJobAdminConfig.getAdminConfig().getMailSender().send(mimeMessage);
+                    OddJobAdminConfig.getAdminConfig().getMailSender().send(mimeMessage);
                 } catch (Exception e) {
-                    logger.error(">>>>>>>>>>> xxl-job, job fail alarm email send error, JobLogId:{}", jobLog.getId(), e);
+                    logger.error(">>>>>>>>>>> odd-job, job fail alarm email send error, JobLogId:{}", jobLog.getId(), e);
 
                     alarmResult = false;
                 }
-
             }
         }
 
-        return false;
+        return alarmResult; // 默认告警成功
+    }
+
+    /**
+     * load email job alarm template
+     *
+     * 此模板最终可以用于生成邮件内容，填充作业的详细信息，以便向相关人员发送邮件警报。
+     *
+     * @return
+     */
+    private static final String loadEmailJobAlarmTemplate(){
+        String mailBodyTemplate = "<h5>" + I18nUtil.getString("jobconf_monitor_detail") + "：</span>" +
+                "<table border=\"1\" cellpadding=\"3\" style=\"border-collapse:collapse; width:80%;\" >\n" +
+                "   <thead style=\"font-weight: bold;color: #ffffff;background-color: #ff8c00;\" >" +
+                "      <tr>\n" +
+                "         <td width=\"20%\" >"+ I18nUtil.getString("jobinfo_field_jobgroup") +"</td>\n" +
+                "         <td width=\"10%\" >"+ I18nUtil.getString("jobinfo_field_id") +"</td>\n" +
+                "         <td width=\"20%\" >"+ I18nUtil.getString("jobinfo_field_jobdesc") +"</td>\n" +
+                "         <td width=\"10%\" >"+ I18nUtil.getString("jobconf_monitor_alarm_title") +"</td>\n" +
+                "         <td width=\"40%\" >"+ I18nUtil.getString("jobconf_monitor_alarm_content") +"</td>\n" +
+                "      </tr>\n" +
+                "   </thead>\n" +
+                "   <tbody>\n" +
+                "      <tr>\n" +
+                "         <td>{0}</td>\n" +
+                "         <td>{1}</td>\n" +
+                "         <td>{2}</td>\n" +
+                "         <td>"+ I18nUtil.getString("jobconf_monitor_alarm_type") +"</td>\n" +
+                "         <td>{3}</td>\n" +
+                "      </tr>\n" +
+                "   </tbody>\n" +
+                "</table>";
+
+        return mailBodyTemplate;
     }
 }

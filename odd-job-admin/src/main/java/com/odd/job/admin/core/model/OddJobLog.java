@@ -2,10 +2,6 @@ package com.odd.job.admin.core.model;
 
 import java.util.Date;
 
-/**
- * xxl-job log, used to track trigger process
- * @author xuxueli  2015-12-19 23:19:09
- */
 public class OddJobLog {
 	
 	private long id;
@@ -32,7 +28,7 @@ public class OddJobLog {
 	private String handleMsg;
 
 	// alarm info
-	private int alarmStatus;
+	private int alarmStatus; //0-默认、1-无需告警、2-告警成功、3-告警失败
 
 	public long getId() {
 		return id;

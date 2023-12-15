@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 /**
- * job lose-monitor instance
+ * job lose-monitor instance 任务结束、回调
  *
  * @author oddity
  * @create 2023-12-13 1:05

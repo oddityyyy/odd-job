@@ -2,9 +2,7 @@ package com.odd.job.admin.core.model;
 
 import org.springframework.util.StringUtils;
 
-/**
- * @author xuxueli 2019-05-04 16:43:12
- */
+
 public class OddJobUser {
 	
 	private int id;

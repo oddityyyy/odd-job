@@ -2,10 +2,7 @@ package com.odd.job.admin.core.model;
 
 import java.util.Date;
 
-/**
- * odd-job log for glue, used to track job code process
- * @author xuxueli 2016-5-19 17:57:46
- */
+
 public class OddJobLogGlue {
 	
 	private int id;

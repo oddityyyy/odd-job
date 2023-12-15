@@ -1,5 +1,6 @@
 package com.odd.job.admin.core.conf;
 
+import com.odd.job.admin.core.alarm.JobAlarmer;
 import com.odd.job.admin.core.scheduler.OddJobScheduler;
 import com.odd.job.admin.dao.*;
 import org.springframework.beans.factory.DisposableBean;
@@ -26,21 +27,18 @@ public class OddJobAdminConfig implements InitializingBean, DisposableBean {
 
     // ---------------------- OddJobScheduler ----------------------
 
-    //TODO
     private OddJobScheduler oddJobScheduler;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         adminConfig = this;
 
-        //TODO
         oddJobScheduler = new OddJobScheduler();
         oddJobScheduler.init();
     }
 
     @Override
     public void destroy() throws Exception {
-        // TODO
         oddJobScheduler.destroy();
     }
 
@@ -76,12 +74,11 @@ public class OddJobAdminConfig implements InitializingBean, DisposableBean {
     @Resource
     private OddJobGroupDao oddJobGroupDao;
     @Resource
-    private OddJobLogReportDao xxlJobLogReportDao;
+    private OddJobLogReportDao oddJobLogReportDao;
     @Resource
     private JavaMailSender mailSender;
     @Resource
     private DataSource dataSource;
-    // TODO
     @Resource
     private JobAlarmer jobAlarmer;
 
@@ -140,8 +137,8 @@ public class OddJobAdminConfig implements InitializingBean, DisposableBean {
         return oddJobGroupDao;
     }
 
-    public OddJobLogReportDao getXxlJobLogReportDao() {
-        return xxlJobLogReportDao;
+    public OddJobLogReportDao getOddJobLogReportDao() {
+        return oddJobLogReportDao;
     }
 
     public JavaMailSender getMailSender() {

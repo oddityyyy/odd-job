@@ -1,6 +1,7 @@
 package com.odd.job.admin.service.impl;
 
 import com.odd.job.admin.core.thread.JobCompleteHelper;
+import com.odd.job.admin.core.thread.JobRegistryHelper;
 import com.odd.job.core.biz.AdminBiz;
 import com.odd.job.core.biz.model.HandleCallbackParam;
 import com.odd.job.core.biz.model.RegistryParam;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
+ * 接收来自执行器
+ *
  * @author oddity
  * @create 2023-12-13 1:00
  */

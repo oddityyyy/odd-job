@@ -5,9 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by xuxueli on 16/9/30.
- */
+
 public class OddJobGroup {
 
     private int id;

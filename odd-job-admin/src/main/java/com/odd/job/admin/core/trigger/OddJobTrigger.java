@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 /**
- * odd-job trigger 触发器
+ * odd-job trigger 触发器 - 真正发请求让执行器去执行
  * 
  * @author oddity
  * @create 2023-12-13 23:20
