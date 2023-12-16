@@ -1,6 +1,6 @@
-package com.odd.job.core.log.executor.impl;
+package com.odd.job.core.executor.impl;
 
-import com.odd.job.core.log.executor.OddJobExecutor;
+import com.odd.job.core.executor.OddJobExecutor;
 import com.odd.job.core.glue.GlueFactory;
 import com.odd.job.core.handler.annotation.OddJob;
 import org.slf4j.Logger;

@@ -17,6 +17,7 @@ import com.odd.job.core.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.support.CronExpression;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
@@ -28,6 +29,8 @@ import java.util.*;
  * @author oddity
  * @create 2023-12-12 14:44
  */
+
+@Service
 public class OddJobServiceImpl implements OddJobService {
 
     private static Logger logger = LoggerFactory.getLogger(OddJobServiceImpl.class);

@@ -1,6 +1,6 @@
 package com.odd.job.executor.core.config;
 
-import com.odd.job.core.log.executor.impl.OddJobSpringExecutor;
+import com.odd.job.core.executor.impl.OddJobSpringExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

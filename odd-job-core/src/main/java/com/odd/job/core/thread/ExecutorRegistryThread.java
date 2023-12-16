@@ -4,7 +4,7 @@ import com.odd.job.core.biz.AdminBiz;
 import com.odd.job.core.biz.model.RegistryParam;
 import com.odd.job.core.biz.model.ReturnT;
 import com.odd.job.core.enums.RegistryConfig;
-import com.odd.job.core.log.executor.OddJobExecutor;
+import com.odd.job.core.executor.OddJobExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
