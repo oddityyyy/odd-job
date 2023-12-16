@@ -7,6 +7,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -18,6 +19,8 @@ import java.util.Arrays;
  * @author oddity
  * @create 2023-12-11 19:33
  */
+
+@Component
 public class OddJobAdminConfig implements InitializingBean, DisposableBean {
 
     private static OddJobAdminConfig adminConfig = null;
