@@ -109,7 +109,6 @@ public class JobCompleteHelper {
                             logger.error(e.getMessage(), e);
                         }
                     }
-
                 }
 
                 logger.info(">>>>>>>>>>> odd-job, JobLosedMonitorHelper stop");

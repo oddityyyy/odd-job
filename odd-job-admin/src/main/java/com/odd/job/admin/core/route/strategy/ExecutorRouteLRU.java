@@ -21,11 +21,12 @@ import java.util.concurrent.ConcurrentMap;
 public class ExecutorRouteLRU extends ExecutorRouter {
 
     private static ConcurrentMap<Integer, LinkedHashMap<String, String>> jobLRUMap = new ConcurrentHashMap<Integer, LinkedHashMap<String, String>>();
+    // lru缓存的过期时间
     private static long CACHE_VALID_TIME = 0;
 
     public String route(int jobId, List<String> addressList) {
 
-        // cache clear
+        // cache clear 每1天更新一下缓存
         if (System.currentTimeMillis() > CACHE_VALID_TIME) {
             jobLRUMap.clear();
             CACHE_VALID_TIME = System.currentTimeMillis() + 1000*60*60*24;
@@ -36,28 +37,28 @@ public class ExecutorRouteLRU extends ExecutorRouter {
         if (lruItem == null) {
             /**
              * LinkedHashMap
-             *      a、accessOrder：true=访问顺序排序（get/put时排序）；false=插入顺序排期；
-             *      b、removeEldestEntry：新增元素时将会调用，返回true时会删除最老元素；可封装LinkedHashMap并重写该方法，比如定义最大容量，超出是返回true即可实现固定长度的LRU算法；
+             *      a、accessOrder：true=访问顺序排序（get/put时排序）；false=插入顺序排序；
+             *      b、removeEldestEntry：新增元素时将会调用，返回true时会删除最老元素；可封装LinkedHashMap并重写该方法，比如定义最大容量，超出时返回true即可实现固定长度的LRU算法；
              */
             lruItem = new LinkedHashMap<String, String>(16, 0.75f, true);
             jobLRUMap.putIfAbsent(jobId, lruItem);
         }
 
         // put new
-        for (String address: addressList) {
+        for (String address : addressList) {
             if (!lruItem.containsKey(address)) {
                 lruItem.put(address, address); //入队尾
             }
         }
         // remove old
         List<String> delKeys = new ArrayList<>();
-        for (String existKey: lruItem.keySet()) {
+        for (String existKey : lruItem.keySet()) {
             if (!addressList.contains(existKey)) {
                 delKeys.add(existKey);
             }
         }
         if (delKeys.size() > 0) {
-            for (String delKey: delKeys) {
+            for (String delKey : delKeys) {
                 lruItem.remove(delKey);
             }
         }
